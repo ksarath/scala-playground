@@ -12,13 +12,12 @@ object Retry {
 
   def retryWithDelay[T](fn: => T, delay: FiniteDuration, maxRetries: Int = 0): IO[T] = IO.suspend {
     Try(fn) match {
-      case Failure(exception) if maxRetries > 0 =>
+      case Failure(_) if maxRetries > 0 =>
         IO.sleep(delay) *> retryWithDelay(fn, delay, maxRetries - 1)
 
       case Failure(exception) => IO.raiseError(exception)
 
       case Success(value) => IO.pure(value)
-
     }
   }
 }
